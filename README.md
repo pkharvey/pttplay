@@ -6,22 +6,21 @@ few dependencies and to take options to set GPIO pins.
 
 # Building
 
-    $ sudo apt-get install libudev-dev
-    $ make
+    $ nix-build --expr 'let pkgs = import <nixpkgs> {}; in pkgs.callPackage ./default.nix {}'
 
 # Installing
 
-    $ sudo make install
+    TODO
 
 # Using
 
 ## Print Attached Devices
 
-    $ cm108 -p
+    $ result/bin/cm108 -p
 
 ## Setting a GPIO Pin
 
-    $ cm108 -H /dev/hidraw1 -P 5 -L 1
+    $ result/bin/cm108 -H /dev/hidraw1 -P 5 -L 1
 
 
  [1]: https://github.com/wb2osz/direwolf
