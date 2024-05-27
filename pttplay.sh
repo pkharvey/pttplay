@@ -2,6 +2,8 @@
 
 DELAY=0.2    # 200 ms is typical for BF-888S
 PTT_GPIO=3
+HW_VOLUME_PLAYBACK_LEVEL=14
+HW_VOLUME_RECORD_LEVEL=35
 
 print_help() {
     echo "Usage: $0 [-d|--delay <delay>] [-g|--ptt-gpio <gpio_number>] ADEVICE HID_DEVICE MEDIA_FILE"
@@ -59,11 +61,15 @@ if [[ $file_type != audio/* && $file_type != video/* ]]; then
     exit 1
 fi
 
-aplay -D "$ADEVICE" -t wav /dev/zero        # test and fail early if can't access audio h/w
-amixer -D "$ADEVICE" set Mic unmute
+aplay -q -D "$ADEVICE" -t wav /dev/zero        # test and fail early if can't access audio h/w
+amixer -q -D "$ADEVICE" set Speaker "$HW_VOLUME_PLAYBACK_LEVEL"
+amixer -q -D "$ADEVICE" set Speaker on
+amixer -q -D "$ADEVICE" set Mic "$HW_VOLUME_RECORD_LEVEL"
+amixer -q -D "$ADEVICE" set 'Auto Gain Control' on
+amixer -q -D "$ADEVICE" set Mic unmute
 cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 1  # key up
 set +e                                      # make sure failures don't prevent keying down
 sleep "$DELAY"
-ffmpeg -hide_banner -i "$MEDIA_FILE" -ac 2 -ar 44100 -f wav pipe:1 | aplay -D "$ADEVICE"
+ffmpeg -hide_banner -i "$MEDIA_FILE" -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
 cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 0  # key down
 
