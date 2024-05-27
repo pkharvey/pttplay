@@ -13,6 +13,8 @@ print_help() {
     echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:1\""
     echo "  HID_DEVICE                    HID device name that will control the PTT, e.g. \"/dev/hidraw3\""
     echo "  MEDIA_FILE                    File containing audio to play over the air"
+    echo "                                When MEDIA_FILE is -, read standard input"
+    echo "                                with format s16le, mono, 22050 kHz audio"
     echo
     cm108 -p
     exit 1
@@ -50,20 +52,22 @@ gethidreport() {
     hidapitester -q --open "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
 }
 
-if [ ! -e "$MEDIA_FILE" ]; then
-    echo "Error: File '$MEDIA_FILE' does not exist."
-    exit 1
-fi
+if [ "$MEDIA_FILE" != "-" ]; then
+    if [ ! -e "$MEDIA_FILE" ]; then
+        echo "Error: File '$MEDIA_FILE' does not exist."
+        exit 1
+    fi
 
-if [ ! -r "$MEDIA_FILE" ]; then
-    echo "Error: File '$MEDIA_FILE' is not readable."
-    exit 1
-fi
+    if [ ! -r "$MEDIA_FILE" ]; then
+        echo "Error: File '$MEDIA_FILE' is not readable."
+        exit 1
+    fi
 
-file_type=$(file -b --mime-type "$MEDIA_FILE")
-if [[ $file_type != audio/* && $file_type != video/* ]]; then
-    echo "Error: File '${MEDIA_FILE}' is neither an audio file nor a video file with audio streams."
-    exit 1
+    file_type=$(file -b --mime-type "$MEDIA_FILE")
+    if [[ $file_type != audio/* && $file_type != video/* ]]; then
+        echo "Error: File '${MEDIA_FILE}' is neither an audio file nor a video file with audio streams."
+        exit 1
+    fi
 fi
 
 aplay -q -D "$ADEVICE" -t wav /dev/zero        # test and fail early if can't access audio h/w
@@ -82,8 +86,16 @@ fi
 while [ "$(gethidreport)" = " 00 00 00" ]; do sleep $POLL_INTERVAL; done
 
 cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 1  # key up
+
 set +e                                      # make sure failures don't prevent keying down
+
 sleep "$PTT_DELAY"
-ffmpeg -hide_banner -i "$MEDIA_FILE" -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+
+if [ "$MEDIA_FILE" = "-" ]; then
+    ffmpeg -hide_banner -f s16le -ar 22050 -ac 1 -i - -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+else
+    ffmpeg -hide_banner -i "$MEDIA_FILE" -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+fi
+
 cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 0  # key down
 
