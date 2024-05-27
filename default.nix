@@ -8,7 +8,7 @@
 }:
 
 writeShellApplication {
-  name = "pttplay.sh";
+  name = "cosplay.sh";
   runtimeInputs = [ alsa-utils ffmpeg file cm108 hidapitester ];
-  text = builtins.readFile ./pttplay.sh;
+  text = builtins.readFile ./cosplay.sh;
 }

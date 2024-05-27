@@ -1,10 +1,12 @@
 # pttplay
 
-`pttplay.sh` is a command line tool that takes a media file and plays its audio
+`cosplay.sh` is a command line tool that takes a media file and plays its audio
 content to a radio transceiver with a CM108 PTT interface.  It can be used for
 automatic ident, allstar nodes, repeater control, etc.  Default PTT delay and
 GPIO number are chosen to work well with the BF-888S and the commonly found
-homebrew CM108 mod with an NPN transistor to drive the PTT.  GPL-3.0 license.
+homebrew CM108 mod with an NPN transistor to drive the PTT.  Transmit will be
+postponed until the channel is clear by reading the COS signal from the radio
+transceiver.  GPL-3.0 license.
 
 `cm108` is a command line GPIO tool for CMedia CM108 and CM119 audio devices.
 It's a small adaptation of [Dire Wolf][1]'s cm108 driver to compile with very
@@ -26,11 +28,11 @@ commonly used for homebrew USB audio interfaces.  GPL-3.0 license.
 
 ## Print Attached Devices
 
-    $ result/bin/pttplay.sh
+    $ result/bin/cosplay.sh
 
 ## Usage example
 
-    $ result/bin/pttplay.sh hw:3 /dev/hidraw6 callsign.mp3
+    $ result/bin/cosplay.sh hw:3 /dev/hidraw6 callsign.mp3
 
 # Limitations
 
