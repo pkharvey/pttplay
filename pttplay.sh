@@ -7,7 +7,7 @@ print_help() {
     echo "Usage: $0 [-d|--delay <delay>] [-g|--ptt-gpio <gpio_number>] ADEVICE HID_DEVICE MEDIA_FILE"
     echo "  -d, --delay <delay>           Set the PTT delay value (default: $DELAY)"
     echo "  -g, --ptt-gpio <gpio_number>  Set the PTT GPIO number (default: $PTT_GPIO)"
-    echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:1,0\""
+    echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:1\""
     echo "  HID_DEVICE                    HID device name that will control the PTT, e.g. \"/dev/hidraw3\""
     echo "  MEDIA_FILE                    File containing audio to play over the air"
     echo
@@ -60,6 +60,7 @@ if [[ $file_type != audio/* && $file_type != video/* ]]; then
 fi
 
 aplay -D "$ADEVICE" -t wav /dev/zero        # test and fail early if can't access audio h/w
+amixer -D "$ADEVICE" set Mic unmute
 cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 1  # key up
 set +e                                      # make sure failures don't prevent keying down
 sleep "$DELAY"

@@ -26,7 +26,7 @@ few dependencies and to take options to set GPIO pins.
 
 ## Usage example
 
-    $ result/bin/pttplay.sh hw:3,0 /dev/hidraw6 callsign.mp3
+    $ result/bin/pttplay.sh hw:3 /dev/hidraw6 callsign.mp3
 
 
  [1]: https://github.com/wb2osz/direwolf
