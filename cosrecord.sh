@@ -37,7 +37,7 @@ HID_DEVICE="$2"
 MEDIA_FILE="$3"
 
 gethidreport() {
-    hidapitester -q --open "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
+    hidapitester -q --open-path "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
 }
 
 aplay -q -D "$ADEVICE" -t wav /dev/zero        # test and fail early if can't access audio h/w

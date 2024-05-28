@@ -49,7 +49,7 @@ HID_DEVICE="$2"
 MEDIA_FILE="$3"
 
 gethidreport() {
-    hidapitester -q --open "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
+    hidapitester -q --open-path "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
 }
 
 if [ "$MEDIA_FILE" != "-" ]; then
