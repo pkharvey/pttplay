@@ -10,7 +10,7 @@ print_help() {
     echo "Usage: $0 [-d|--delay <delay>] [-g|--ptt-gpio <gpio_number>] ADEVICE HID_DEVICE MEDIA_FILE"
     echo "  -d, --delay <delay>           Set the PTT delay value (default: $PTT_DELAY)"
     echo "  -g, --ptt-gpio <gpio_number>  Set the PTT GPIO number (default: $PTT_GPIO)"
-    echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:1\""
+    echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:2\""
     echo "  HID_DEVICE                    HID device name that will control the PTT, e.g. \"/dev/hidraw3\""
     echo "  MEDIA_FILE                    File containing audio to play over the air"
     echo "                                When MEDIA_FILE is -, read standard input"
