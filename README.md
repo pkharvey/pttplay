@@ -13,12 +13,13 @@ transmission by monitoring the COS signal, starts recording mono audio at 44100
 kHz on signal acquisition, then terminates when signal acquisition is lost.
 GPL-3.0 license.
 
-`cm108` is a command line GPIO tool for CMedia CM108 and CM119 audio devices.
-It's a small adaptation of [Dire Wolf][1]'s cm108 driver to compile with very
-few dependencies and to take options to set GPIO pins.  GPL-2.0 license.
+[`cm108`][1] is a command line GPIO tool for CMedia CM108 and CM119 audio
+devices. It's a small adaptation of [Dire Wolf][2]'s cm108 driver to compile
+with very few dependencies and to take options to set GPIO pins.  GPL-2.0
+license.
 
-`hidapitester` is a command line program to access HID API functions.  It is
-required to read the COS status line, which will be wired to `VOL DN` pin as
+[`hidapitester`][3] is a command line program to access HID API functions.  It
+is required to read the COS status line, which will be wired to `VOL DN` pin as
 commonly used for homebrew USB audio interfaces.  GPL-3.0 license.
 
 # Building
@@ -55,5 +56,6 @@ comparison with `gethidreport()` may need to be adjusted if COS is wired
 differently.
 
 
- [1]: https://github.com/wb2osz/direwolf
- [2]: https://github.com/todbot/hidapitester
+ [1]: https://github.com/twilly/cm108
+ [2]: https://github.com/wb2osz/direwolf
+ [3]: https://github.com/todbot/hidapitester
