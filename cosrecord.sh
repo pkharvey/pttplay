@@ -47,8 +47,6 @@ amixer -q -D "$ADEVICE" set Mic "$HW_VOLUME_RECORD_LEVEL"
 amixer -q -D "$ADEVICE" set 'Auto Gain Control' on
 amixer -q -D "$ADEVICE" set Mic unmute
 
-trap "kill 0" EXIT
-
 if [ "$(gethidreport)" != " 00 00 00" ]
 then
     echo "Waiting for carrier..." >&2
@@ -66,6 +64,7 @@ if [ "$MEDIA_FILE" = "-" ]; then
 else
     arecord -D "$ADEVICE" -f S16_LE -t wav -r 44100 -c 1 -N "$MEDIA_FILE" &
 fi
+ARECORD_PID=$!
 
 while [ "$(gethidreport)" = " 00 00 00" ]; do
     sleep $POLL_INTERVAL
@@ -76,4 +75,6 @@ while [ "$(gethidreport)" = " 00 00 00" ]; do
         done
     done
 done
+
+kill $ARECORD_PID
 
