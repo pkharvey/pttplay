@@ -58,6 +58,11 @@ gethidreport() {
     hidapitester -q --open-path "$HID_DEVICE" -t 0 --open -l 3 --read-input-report 0
 }
 
+cleanup() {
+    cm108 -H "$HID_DEVICE" -P "$PTT_GPIO" -L 0  # key down
+}
+trap cleanup EXIT
+
 if [ "$MEDIA_FILE" != "-" ]; then
     if [ ! -e "$MEDIA_FILE" ]; then
         echo "Error: File '$MEDIA_FILE' does not exist."
