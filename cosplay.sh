@@ -5,11 +5,13 @@ PTT_GPIO=3
 HW_VOLUME_PLAYBACK_LEVEL=14
 HW_VOLUME_RECORD_LEVEL=35
 POLL_INTERVAL=0.2
+BUFFER_STDIN=0   # 0:no 1:yes
 
 print_help() {
-    echo "Usage: $0 [-d|--delay <delay>] [-g|--ptt-gpio <gpio_number>] ADEVICE HID_DEVICE MEDIA_FILE"
+    echo "Usage: $0 [OPTION...] ADEVICE HID_DEVICE MEDIA_FILE"
     echo "  -d, --delay <delay>           Set the PTT delay value (default: $PTT_DELAY)"
     echo "  -g, --ptt-gpio <gpio_number>  Set the PTT GPIO number (default: $PTT_GPIO)"
+    echo "  -b, --buffer-stdin            Buffer stdin before starting to transmit"
     echo "  ADEVICE                       ALSA device name of the interface, e.g. \"hw:2\""
     echo "  HID_DEVICE                    HID device name that will control the PTT, e.g. \"/dev/hidraw3\""
     echo "  MEDIA_FILE                    File containing audio to play over the air"
@@ -29,6 +31,10 @@ while [[ $# -gt 0 ]]; do
         -g|--ptt-gpio)
             PTT_GPIO="$2"
             shift 2
+            ;;
+        -b|--buffer-stdin)
+            BUFFER_STDIN=1
+            shift 1
             ;;
         -h|--help)
             print_help
@@ -77,9 +83,15 @@ amixer -q -D "$ADEVICE" set Mic "$HW_VOLUME_RECORD_LEVEL"
 amixer -q -D "$ADEVICE" set 'Auto Gain Control' on
 amixer -q -D "$ADEVICE" set Mic unmute
 
+if [ "$BUFFER_STDIN" = 1 ]; then
+    echo "$0: Waiting to receive entire stream..."
+    TEMP_FILE=$(mktemp)
+    cat >"$TEMP_FILE"
+fi
+
 if [ "$(gethidreport)" = " 00 00 00" ]
 then
-    echo "Playback will be postponed until the channel is clear..."
+    echo "$0: Playback will be postponed until the channel is clear..."
     sleep $POLL_INTERVAL
 fi
 
@@ -92,7 +104,12 @@ set +e                                      # make sure failures don't prevent k
 sleep "$PTT_DELAY"
 
 if [ "$MEDIA_FILE" = "-" ]; then
-    ffmpeg -hide_banner -f s16le -ar 22050 -ac 1 -i - -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+    if [ "$BUFFER_STDIN" = 1 ]; then
+        ffmpeg -hide_banner -f s16le -ar 22050 -ac 1 -i - -f s16le -ac 2 -ar 44100 pipe:1 < "$TEMP_FILE" | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+        rm "$TEMP_FILE"
+    else
+        ffmpeg -hide_banner -f s16le -ar 22050 -ac 1 -i - -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
+    fi
 else
     ffmpeg -hide_banner -i "$MEDIA_FILE" -f s16le -ac 2 -ar 44100 pipe:1 | aplay -c 2 -r 44100 -f S16_LE -t raw -D "$ADEVICE"
 fi

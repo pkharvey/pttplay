@@ -49,6 +49,14 @@ TODO
     $ cat callsign.wav | result/bin/cosplay.sh hw:2 /dev/hidraw3 -
     $ result/bin/cosrecord.sh hw:2 /dev/hidraw3 - | cat >outpiped.wav
 
+### New buffer feature in this version
+
+You can now buffer stdin to a temporary file.  This has the desired effect of
+waiting to receive the entire audio stream first before turning on PTT in use
+cases where audio is piped around and occasionally blocks for input.
+
+    $ cat callsign.wav | ./result/bin/cosplay.sh -b hw:2 /dev/hidraw2 -
+
 # Limitations
 
 - COS must be wired to `VOL DN`.  Other combinations not tested.  The string
